@@ -1,6 +1,3 @@
-require(devtools)
-require(maptools)
-require(rgeos)
 require(PBSmapping)
 source("countysinglegrab.R")
 shinyServer(function(input, output, session) {

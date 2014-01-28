@@ -1,3 +1,5 @@
+require(PBSmapping)
+shapefilepath = getwd()
 setwd(shapefilepath)
 myshpfl<-importShapefile("co99_d00", readDBF = TRUE)
 names<-read.dbf("co99_d00.dbf")

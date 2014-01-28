@@ -7,8 +7,8 @@ hashProxy <- function(inputoutputID) {
 shinyUI(pageWithSidebar(
   headerPanel("Get County Names"),
   sidebarPanel(
-    textInput("lat", "latitude?", NULL),
-    textInput("lng", "longitude?", NULL)
+    textInput("lat", "latitude?", "DONT INPUT HERE"),
+    textInput("lng", "longitude?", "INPUT GOES IN URL")
   ),
   mainPanel(
     includeHTML("URL.js"),
