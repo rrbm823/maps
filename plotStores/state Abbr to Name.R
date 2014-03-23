@@ -3,9 +3,6 @@ stateAbb2Name <- function(i){
   y <- append(state.abb, c("PR", "VI", "AE", "DC", "AA", "AP", "AS", "GU", "PW", "FM", "MP", "MH"))
   if(nchar(i) < 3){
     i <- x[which(is.element(y, i))]
-  }
-  else{
-    i <- y[which(is.element(x, i))]
-  }
+  }else i <- y[which(is.element(x, i))]
   return(i)
 }
