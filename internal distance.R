@@ -1,7 +1,9 @@
-internal_distance <- function(store){
-  importantstore <- retrieveCSV(store)
+internal_distance <- function(store, showGraph = F, directory = "~/aggdata/Shared/Premium/Community & Government"){
+  oldwd <- getwd()
+  setwd(directory)
+  importantstore <- read.csv(paste0(store, ".csv"))
   n <- ncol(importantstore)
-  if(class(importantstore[,n]) == numeric){
+  if(class(importantstore[,n]) == "numeric"){
     lats <- importantstore[,n - 1]
     lngs <- importantstore[,n]
   }
@@ -15,7 +17,13 @@ internal_distance <- function(store){
     d <- cbind(d, matrix(3963.1676*2*atan2(y,x)))
   }
   out <- cbind(importantstore, d[,-1])
-  return(out)  
+  if(!showGraph) return(out)
+  if(nrow(out) > 500) stop("that's too much data")
+  g <- graph.full(nrow(d))
+  layout <- layout.mds(g, dist = d[,-1])
+  plot(g, layout = layout, vertex.size = 3)
+  setwd(oldwd)
+  return(out)
 }
 
 
