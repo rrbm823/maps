@@ -86,7 +86,7 @@ scrapeEditor <- function(scrape_name,
   
     if(!is.null(userRGX)) rgx <- userRGX
     
-    cat(EPwithTokens)
+    cat(EPwithTokens, "\r\n")
     xmlValue(scrape[[EP.pos[1]]][[EP.pos[2]]][[1]]) <- EPwithTokens
     tokens <- unlist(strsplit(EPwithTokens, ","))
     if(XMLd) tokens <- unlist(strsplit(EPwithTokens, "><"))

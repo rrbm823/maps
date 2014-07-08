@@ -9,7 +9,7 @@ climbTree <- function(tree,
   if(n > 0){
     nodeValue <- xmlValue(tree, recursive = F)
     b <- length(grep(rgx[1], nodeValue))
-    if(b > 0) cat("\t\t", "value matched rgx at node # ", nodeNumber, "\r\n\t", nodeValue, "\r\n")
+    if(b > 0) cat("\t\tvalue matched rgx at node # ", nodeNumber, "\r\n\t", nodeValue, "\r\n")
     sapply(1:n, function(i){
       climbTree(tree[[i]], nodeNames, rgx = rgx, nodeNumber = i, env = new.env())
     })
@@ -18,7 +18,7 @@ climbTree <- function(tree,
 }
 
 
-rgxLib <- function(opt = c("json", "XML", "XMLattrs", "addressRGX", "xmlStringRGX")){
+rgxLib <- function(opt = c("json", "XML", "XMLattrs", "address", "xmlString")){
   
   jsonRGX <- c('\\"([^\\"]+)\\":([\\s\\"]*)([^\\"]*)([\\s\\"]*),', '\\"\\1\\":\\2~@\\U\\1\\E@~\\4,')
   xmlRGX <- c('<([^>]+)>[^<]*</([^>]+)>', '<\\1>~@\\U\\1\\E@~</\\1>')
@@ -27,7 +27,7 @@ rgxLib <- function(opt = c("json", "XML", "XMLattrs", "addressRGX", "xmlStringRG
   xmlStringRGX <- c("<([a-zA-Z]+:)?[a-zA-Z]+(/?>| [a-zA-Z]+=[\"'])")
   
   rgxList <- list(jsonRGX, xmlRGX, xmlattrRGX, addressRGX, xmlStringRGX)
-  rgx <- rgxList[which(c("json", "XML", "XMLattrs", "addressRGX", "xmlStringRGX") %in% opt)]
+  rgx <- rgxList[which(c("json", "XML", "XMLattrs", "address", "xmlString") %in% opt)]
   return(rgx)
 }
 

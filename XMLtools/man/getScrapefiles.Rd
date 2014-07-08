@@ -1,0 +1,70 @@
+\name{getScrapefiles}
+\alias{getScrapefiles}
+%- Also NEED an '\alias' for EACH other topic documented here.
+\title{
+%%  ~~function to do ... ~~
+}
+\description{
+%%  ~~ A concise (1-5 lines) description of what the function does. ~~
+}
+\usage{
+getScrapefiles(scrape_node, all = F, which_scrapefile = 1)
+}
+%- maybe also 'usage' for other objects documented here.
+\arguments{
+  \item{scrape_node}{
+%%     ~~Describe \code{scrape_node} here~~
+}
+  \item{all}{
+%%     ~~Describe \code{all} here~~
+}
+  \item{which_scrapefile}{
+%%     ~~Describe \code{which_scrapefile} here~~
+}
+}
+\details{
+%%  ~~ If necessary, more details than the description above ~~
+}
+\value{
+%%  ~Describe the value returned
+%%  If it is a LIST, use
+%%  \item{comp1 }{Description of 'comp1'}
+%%  \item{comp2 }{Description of 'comp2'}
+%% ...
+}
+\references{
+%% ~put references to the literature/web site here ~
+}
+\author{
+%%  ~~who you are~~
+}
+\note{
+%%  ~~further notes~~
+}
+
+%% ~Make other sections like Warning with \section{Warning }{....} ~
+
+\seealso{
+%% ~~objects to See Also as \code{\link{help}}, ~~~
+}
+\examples{
+##---- Should be DIRECTLY executable !! ----
+##-- ==>  Define data, use random,
+##--	or do  help(data=index)  for the standard data sets.
+
+## The function is currently defined as
+function (scrape_node, all = F, which_scrapefile = 1) 
+{
+    if (all) 
+        return(xpathSApply(scrape_node, "//scrapeable-files"))
+    n <- length(xmlChildren(scrape_node))
+    a <- which(sapply(1:n, function(i) xmlName(scrape_node[[i]])) == 
+        "scrapeable-files")
+    q <- a[which_scrapefile]
+    return(list(scrape_node[[q]], q))
+  }
+}
+% Add one or more standard keywords, see file 'KEYWORDS' in the
+% R documentation directory.
+\keyword{ ~kwd1 }
+\keyword{ ~kwd2 }% __ONLY ONE__ keyword per line

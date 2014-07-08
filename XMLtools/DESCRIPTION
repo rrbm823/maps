@@ -1,0 +1,9 @@
+Package: XMLeditor
+Type: Package
+Title: Tools for extracting content from XML
+Version: 1.0
+Date: 2014-07-05
+Author: Robert Glorioso
+Maintainer: Robert Glorioso <rrbm823@gmail.com>
+Description: sssTools.R for interfacing with screen-scraper and docSearch.R for general XML extracting
+License: GPL-2
