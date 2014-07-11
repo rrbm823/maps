@@ -1,34 +1,34 @@
 climbTree <- function(tree, 
                       nodeNames = NULL, 
                       rgx = rgxLib("json")[[1]], 
-                      nodeNumber = 1, 
+                      nodeNumber = c(1), 
                       env = parent.frame()){
+  #cat("matching for rgx: ", rgx, "\r\n")
   n <- xmlSize(tree)
+  cat(rep("/", n), "\r\n")
   nodeName <- xmlName(tree)
   if(length(which(nodeName %in% nodeNames)) > 0) cat("matched name at node # ", nodeNumber, "\r\n\t", nodeName, "\r\n")
   if(n > 0){
     nodeValue <- xmlValue(tree, recursive = F)
     b <- length(grep(rgx[1], nodeValue))
-    if(b > 0) cat("\t\tvalue matched rgx at node # ", nodeNumber, "\r\n\t", nodeValue, "\r\n")
+    if(b > 0) cat("value matched rgx at node # ", nodeNumber, nodeValue, sep = "\r\n\t")
     sapply(1:n, function(i){
-      climbTree(tree[[i]], nodeNames, rgx = rgx, nodeNumber = i, env = new.env())
+      climbTree(tree[[i]], nodeNames, rgx = rgx, nodeNumber = append(nodeNumber,i), env = new.env())
     })
   } 
-  return("end ")
+  return("end")
 }
 
 
-rgxLib <- function(opt = c("json", "XML", "XMLattrs", "address", "xmlString")){
+rgxLib <- function(opt = c("json", "XML", "XMLattrs", "addressRGX", "xmlStringRGX"), addThis = NULL){
+  rgxList <- as.list(read.csv("searches.csv"))
+  if(!is.null(addThis)) {
+    rgxList <- append(rgxList, addThis)
+    write.csv(as.data.frame(rgxList), "searches.csv", row.names = F)
+  }
+  if(opt == "all") return(rgxList)
+  return(rgxList[opt])
   
-  jsonRGX <- c('\\"([^\\"]+)\\":([\\s\\"]*)([^\\"]*)([\\s\\"]*),', '\\"\\1\\":\\2~@\\U\\1\\E@~\\4,')
-  xmlRGX <- c('<([^>]+)>[^<]*</([^>]+)>', '<\\1>~@\\U\\1\\E@~</\\1>')
-  xmlattrRGX <- c('([^=\\s]+)="([^"]*)"', '\\1="~@\\U\\1\\E@~"')
-  addressRGX <- c("^[0-9]+\\s\\D*$")
-  xmlStringRGX <- c("<([a-zA-Z]+:)?[a-zA-Z]+(/?>| [a-zA-Z]+=[\"'])")
-  
-  rgxList <- list(jsonRGX, xmlRGX, xmlattrRGX, addressRGX, xmlStringRGX)
-  rgx <- rgxList[which(c("json", "XML", "XMLattrs", "address", "xmlString") %in% opt)]
-  return(rgx)
 }
 
 tokensReplacer <- function(tree, rgx, attrs = FALSE, asText = F){
