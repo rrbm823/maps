@@ -3,25 +3,30 @@ climbTree <- function(tree,
                       rgx = rgxLib("json")[[1]], 
                       nodeNumber = c(1), 
                       env = parent.frame()){
-  #cat("matching for rgx: ", rgx, "\r\n")
+  if(!exists("outlist", where = 1)) outlist <<- list()
   n <- xmlSize(tree)
-  cat(rep("/", n), "\r\n")
+  if(n > 0)cat(rep("/", n), "\r\n") else cat("--", nodeNumber, "\r\n\t")
   nodeName <- xmlName(tree)
   if(length(which(nodeName %in% nodeNames)) > 0) cat("matched name at node # ", nodeNumber, "\r\n\t", nodeName, "\r\n")
   if(n > 0){
     nodeValue <- xmlValue(tree, recursive = F)
-    b <- length(grep(rgx[1], nodeValue))
-    if(b > 0) cat("value matched rgx at node # ", nodeNumber, nodeValue, sep = "\r\n\t")
+    b <- length(grep(as.character(rgx), nodeValue))
+    if(b > 0) {
+      outlist <<- append(get("outlist", pos = 1), tree)
+      #cat("value matched rgx at node # ", nodeNumber, nodeValue, sep = "\r\n\t")
+    }
     sapply(1:n, function(i){
       climbTree(tree[[i]], nodeNames, rgx = rgx, nodeNumber = append(nodeNumber,i), env = new.env())
     })
   } 
+  outvalue <<- sapply(outlist, xmlValue)
+  
   return("end")
 }
 
 
 rgxLib <- function(opt = c("json", "XML", "XMLattrs", "addressRGX", "xmlStringRGX"), addThis = NULL){
-  rgxList <- as.list(read.csv("searches.csv"))
+  rgxList <- as.list(read.csv("searches.csv", stringsAsFactors = F))
   if(!is.null(addThis)) {
     rgxList <- append(rgxList, addThis)
     write.csv(as.data.frame(rgxList), "searches.csv", row.names = F)

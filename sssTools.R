@@ -5,13 +5,13 @@ egnyteSSS <- function(store_name, subdir = "3 Month Updates") paste0("C:/Egnyte/
 
 
 
-readScrape <- function(scrape_name, subdir = "3 Month Updates", xpath = NULL, internal = TRUE){
+readScrape <- function(scrape_name, subdir = "3 Month Updates", xpath = NULL, internal = TRUE, fun, ...){
   require(XML)
   ParsedScrape <- xmlTreeParse(egnyteSSS(scrape_name, subdir), useInternalNodes = internal)
   TreeScrape <- xmlRoot(ParsedScrape)
   
   if(length(xpath) > 0){
-    print(xpathApply(TreeScrape, xpath))
+    return(xpathSApply(TreeScrape, xpath, fun, ...))
   }
   return(TreeScrape)
         
@@ -52,12 +52,12 @@ scrapeEditor <- function(scrape_name,
   if(is.null(rgxInput)) stop("enter rgx opt")
   rgx <- rgxLib(rgxInput)[[1]]
   if(!is.null(userRGX)) rgx <- userRGX
-
   pt <- getNodeSet(scrape, "//scrapeable-files/extractor-patterns/pattern-text")          
   for(node in pt){
+    ep <- xmlParent(node)
     if(rgxInput == "json"){
       patterntext <- xmlValue(node)
-      require(jsonlite)
+      library(jsonlite)
       possjson <- validate(patterntext)
       if(possjson) {
         cat("json found: ", patterntext, "\r\n")
@@ -87,7 +87,7 @@ scrapeEditor <- function(scrape_name,
         newSubExt
       })
     
-      addChildren(node, kids = subexts)
+      addChildren(ep, kids = subexts)
     }
   }
   if(save) saveXML(scrape, file = egnyteSSS(scrape_name))
