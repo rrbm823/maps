@@ -1,19 +1,39 @@
 
+
+ssCSV <- function(store_name) paste0("C:/Program Files/screen-scraper/", store_name, ".csv")
 egnyteCSV <- function(store_name, subdir = "3 Month Updates") paste0("C:/Egnyte/Shared/Main/", subdir, "/", store_name, ".csv")
 egnyteSSS <- function(store_name, subdir = "3 Month Updates") paste0("C:/Egnyte/Shared/Main/", subdir, "/", store_name, " (Scraping Session).sss")
 
-
-
-
-readScrape <- function(scrape_name, subdir = "3 Month Updates", xpath = NULL, internal = TRUE, ...){
+readScrape <- function(scrape_name, 
+                       subdir = "3 Month Updates", 
+                       xpath = NULL, 
+                       internal = TRUE, 
+                       error_catching = NULL,
+                       ...){
+  full_name_type <- grepl("(Scraping Session)", scrape_name)
+  if(!full_name_type) scrape_name <- egnyteSSS(scrape_name, subdir)
   require(XML)
-  ParsedScrape <- xmlTreeParse(egnyteSSS(scrape_name, subdir), useInternalNodes = internal)
-  TreeScrape <- xmlRoot(ParsedScrape)
-  
-  if(length(xpath) > 0){
-    return(xpathSApply(TreeScrape, xpath, ...))
+  if(is.null(error_catching)){
+    ParsedScrape <- xmlTreeParse(scrape_name, useInternalNodes = internal)
+    TreeScrape <- xmlRoot(ParsedScrape)
+    
+    if(length(xpath) > 0){
+      return(xpathSApply(TreeScrape, xpath, ...))
+    }
+    return(TreeScrape)
   }
-  return(TreeScrape)
+  else{
+    error_or_tree <- tryCatch({
+      ParsedScrape <- xmlTreeParse(scrape_name, useInternalNodes = internal)
+      TreeScrape <- xmlRoot(ParsedScrape)
+      
+      if(length(xpath) > 0){
+        return(xpathSApply(TreeScrape, xpath, ...))
+      }
+      TreeScrape
+    }, error = error_catching)
+    if(!inherits(error_or_tree, 'error')) return(error_or_tree) else return()
+  }
         
 }
 
@@ -72,7 +92,7 @@ scrapeEditor <- function(scrape_name,
         EPwithTokens <- gsub(rgx[1], rgx[2], patterntext, perl = T)
       }
     }
-}
+  }
   cat(EPwithTokens, "\r\n")
   xmlValue(node) <- EPwithTokens
   tokens <- unlist(strsplit(EPwithTokens, ","))
@@ -97,15 +117,16 @@ scrapeEditor <- function(scrape_name,
 }
 
 
-QA <- function(store_name, subdir = "3 Month Updates", plot = F, bind = F, stringsAsFactors = F){
-  newversion <- read.csv(paste0("C:/Program Files/screen-scraper/", store_name, ".csv"),header = F, stringsAsFactors = stringsAsFactors)
+QA <- function(store_name, subdir = "3 Month Updates", plot = F, bind = F, stringsAsFactors = T){
+  newversion <- read.csv(paste0("C:/Program Files/screen-scraper/", store_name, ".csv"), header = F, stringsAsFactors = stringsAsFactors)
   oldversion <- read.csv(egnyteCSV(store_name, subdir), header = F, stringsAsFactors = stringsAsFactors)
   oldversion <- oldversion[!duplicated(oldversion),]
   newversion <- newversion[!duplicated(newversion),]
-  if(bind)write.csv(rbind(oldversion, newversion), "weight_watchers.csv", row.names = F)
+  if(bind) write.csv(rbind(oldversion, newversion), paste0(store_name, ".csv"), row.names = F)
   cat("old rows:", nrow(oldversion), "\nnew rows:", nrow(newversion), "\n")
   str(oldversion)
   str(newversion)
+  ##auto-update to atrium
 #  a <- readline("write out timestamp: (y/n)")
 #   if(a == "y"){
 #     atrium <- read.csv("atrium_cases.csv", header = F)
@@ -140,4 +161,12 @@ QA <- function(store_name, subdir = "3 Month Updates", plot = F, bind = F, strin
     plot(density(new_pts, 1))
     par(mfrow = oopar$mfrow)
   }
+}
+getAtriumLinks <- function(){
+  al <- read.table("alFile.txt", sep = "\n", stringsAsFactors = F, header = F)
+  al <- gsub("Complete List of |Locations", "", al[,1])
+  at <- read.csv("C:/Program Files/screen-scraper/atrium.csv", stringsAsFactors = F, header = F)
+  at.names <- at[,5]
+  atrium_match <- sapply(al, function(i) which.min(sapply(at.names, function(j) adist(i,j))))
+  cat(paste0(paste0("http://atrium.aggdata.com/data/cases/",at.names[atrium_match]), collapse="\r\n"))
 }
